@@ -16,11 +16,17 @@ class User < ActiveRecord::Base
             uniqueness: { case_sensitive: false }
 
   def self.by_total_points
-    joins(:points).group('users.id').order('SUM(points.value) DESC')
+    # joins(:points).group('users.id').order('SUM(points.value) DESC')
+    where.not(sum_point: nil).order(sum_point: :desc)
   end
 
   def total_points
-    self.points.sum(:value)
+    if sum_point == nil || sum_point == 0
+      self.update(sum_point: self.points.sum(:value))
+      sum_point
+    else
+      sum_point
+    end
   end
 
   def full_name
